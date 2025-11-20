@@ -1,16 +1,19 @@
+import { useState } from "react";
+import { Link } from "react-router";
 import { useForm } from "../../hooks/useForm";
-import { useNavigate } from "react-router";
+import { Loading } from "../../components/Loading";
 
-export const Login = () => {
+export const Login = ({ onLoginSuccess }) => {
   const { form, handleChange, handleReset } = useForm({
     username: "",
     password: "",
   });
 
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await fetch("http://localhost:3000/api/login", {
@@ -19,19 +22,26 @@ export const Login = () => {
         credentials: "include",
         body: JSON.stringify(form),
       });
-      console.log("estoy en el submit");
 
-      if (response) {
-        navigate("/home");
+      const data = await response.json();
+
+      if (response.ok) {
+        onLoginSuccess();
       } else {
-        alert("Credenciales incorrectas");
+        alert(data.message || "Credenciales inválidas");
+        handleReset();
       }
     } catch (error) {
-      console.log(error.message);
+      console.error(error);
+      alert("Error al conectar con el servidor");
+      handleReset();
+    } finally {
+      setLoading(false);
     }
   };
   return (
     <div className="container py-5">
+      {loading && <Loading />}
       <div className="row justify-content-center">
         <div className="col-12 col-md-8 col-lg-6">
           <div className="card shadow-sm">
@@ -74,6 +84,12 @@ export const Login = () => {
                   Iniciar Sesión
                 </button>
               </form>
+              <p className="text-center text-muted mt-3 mb-0">
+                ¿No tienes cuenta?{" "}
+                <Link to="/register" className="text-decoration-none">
+                  Regístrate
+                </Link>
+              </p>
             </div>
           </div>
         </div>

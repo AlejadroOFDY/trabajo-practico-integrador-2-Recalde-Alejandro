@@ -1,48 +1,56 @@
-import { Footer } from "./Footer";
-export const Navbar = () => {
-  const hasToken = document.cookie.includes("token=");
-  const logout = async () => {
-    const res = await fetch("http://localhost:3000/api/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    if (res.ok) window.location.href = "/login";
+import { Link } from "react-router";
+
+export const Navbar = ({ authStatus, onLogout }) => {
+  const handleLogoutClick = async () => {
+    try {
+      await fetch("http://localhost:3000/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Error al cerrar sesión en el backend:", error);
+    } finally {
+      onLogout();
+    }
   };
+
   return (
-    <>
-      <nav className="navbar navbar-light bg-light px-3">
-        <a className="navbar-brand" href="/home">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light px-3">
+      <div className="container-fluid">
+        <Link className="navbar-brand" to="/home">
           App
-        </a>
+        </Link>
         <div className="d-flex gap-2">
-          {!hasToken && (
-            <a href="/login" className="btn btn-sm btn-outline-primary">
-              Login
-            </a>
-          )}
-          {!hasToken && (
-            <a href="/register" className="btn btn-sm btn-outline-secondary">
-              Registro
-            </a>
-          )}
-          {hasToken && (
-            <a href="/tasks" className="btn btn-sm btn-outline-info">
-              Tareas
-            </a>
-          )}
-          {hasToken && (
-            <a href="/profile" className="btn btn-sm btn-outline-success">
-              Perfil
-            </a>
-          )}
-          {hasToken && (
-            <button onClick={logout} className="btn btn-sm btn-outline-danger">
-              Salir
-            </button>
+          {authStatus === "authenticated" ? (
+            <>
+              <Link to="/home" className="btn btn-sm btn-outline-primary">
+                Inicio
+              </Link>
+              <Link to="/tasks" className="btn btn-sm btn-outline-info">
+                Tareas
+              </Link>
+              <Link to="/profile" className="btn btn-sm btn-outline-success">
+                Perfil
+              </Link>
+              <button
+                onClick={handleLogoutClick}
+                className="btn btn-sm btn-outline-danger"
+              >
+                Salir
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn-sm btn-outline-primary">
+                Login
+              </Link>
+              <Link to="/register" className="btn btn-sm btn-outline-secondary">
+                Registro
+              </Link>
+            </>
           )}
         </div>
-      </nav>
-      <Footer />
-    </>
+      </div>
+    </nav>
   );
 };

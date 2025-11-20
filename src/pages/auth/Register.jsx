@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "../../hooks/useForm";
-import { useNavigate } from "react-router";
+import { Loading } from "../../components/Loading";
 
-export const Register = () => {
+export const Register = ({ onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const { form, handleChange, handleReset } = useForm({
     username: "",
@@ -13,8 +15,6 @@ export const Register = () => {
     lastname: "",
     dni: "",
   });
-
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,21 +36,27 @@ export const Register = () => {
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      console.log("estoy en el submit");
+
+      const data = await response.json();
 
       if (response.ok) {
+        alert("¡Usuario registrado exitosamente! Por favor inicia sesión.");
         navigate("/login");
       } else {
-        alert("No se pudo registrar el usuario");
+        alert(data.message || "Error en el registro");
+        handleReset();
       }
     } catch (error) {
-      console.log(error.message);
+      console.error(error);
+      alert("Error al conectar con el servidor");
+      handleReset();
     } finally {
       setLoading(false);
     }
   };
   return (
     <div className="container py-5">
+      {loading && <Loading />}
       <div className="row justify-content-center">
         <div className="col-12 col-md-8 col-lg-6">
           <div className="card shadow-sm">
@@ -162,6 +168,12 @@ export const Register = () => {
                   Registrarse
                 </button>
               </form>
+              <p className="text-center text-muted mt-3 mb-0">
+                ¿Ya tienes cuenta?{" "}
+                <Link to="/login" className="text-decoration-none">
+                  Inicia sesión
+                </Link>
+              </p>
             </div>
           </div>
         </div>
