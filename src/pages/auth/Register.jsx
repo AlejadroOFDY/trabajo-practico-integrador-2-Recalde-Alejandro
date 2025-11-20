@@ -38,8 +38,10 @@ export const Register = () => {
       });
       console.log("estoy en el submit");
 
-      if (response) {
+      if (response.ok) {
         navigate("/login");
+      } else {
+        alert("No se pudo registrar el usuario");
       }
     } catch (error) {
       console.log(error.message);

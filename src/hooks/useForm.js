@@ -12,9 +12,9 @@ export const useForm = (initialValue = {}) => {
       [name]: value,
     });
   };
-};
 
-handleReset = () => {
-  useForm(initialValue);
+  const handleReset = () => {
+    setForm(initialValue);
+  };
+  return { form, handleChange, handleReset };
 };
-return { value, ...value, handleChange, handleReset };
